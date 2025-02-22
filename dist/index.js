@@ -14,8 +14,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const db_1 = require("./db");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const app = (0, express_1.default)();
 const PORT = 3000;
+const JWT_PASSWORD = "secret";
 app.use(express_1.default.json());
 app.post("/api/v1/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -26,26 +28,55 @@ app.post("/api/v1/signup", (req, res) => __awaiter(void 0, void 0, void 0, funct
         });
         res.json({
             message: "User signed up",
-            user
+            user,
         });
     }
     catch (error) {
         res.status(500).json({
             message: "Error creating user",
+            error: error instanceof Error ? error.message : "Unknown error",
         });
     }
 }));
-app.post("api/v1/signin", (req, res) => {
+app.post("/api/v1/signin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { username, password } = req.body;
+        const existingUser = yield db_1.UserModel.findOne({ username, password });
+        if (existingUser) {
+            const token = jsonwebtoken_1.default.sign({ id: existingUser._id }, JWT_PASSWORD);
+            res.json({
+                token,
+                message: "User signed in",
+            });
+        }
+        else {
+            res.status(401).json({
+                message: "Invalid credentials",
+            });
+        }
+    }
+    catch (error) {
+        res.status(500).json({
+            message: "Error signing in",
+            error: error instanceof Error ? error.message : "Unknown error",
+        });
+    }
+}));
+// Placeholder routes
+app.post("/api/v1/content", (req, res) => {
+    res.send("Content API placeholder");
 });
-app.post("api/v1/content", (req, res) => {
+app.get("/api/v1/signup", (req, res) => {
+    res.send("Signup GET API placeholder");
 });
-app.get("api/v1/signup", (req, res) => {
+app.delete("/api/v1/signup", (req, res) => {
+    res.send("Signup DELETE API placeholder");
 });
-app.delete("api/v1/signup", (req, res) => {
+app.post("/api/v1/brain/share", (req, res) => {
+    res.send("Brain share API placeholder");
 });
-app.post("api/v1/brain/share", (req, res) => {
-});
-app.post("api/v1/brain/:sharelink", (req, res) => {
+app.post("/api/v1/brain/:sharelink", (req, res) => {
+    res.send(`Brain share API for link: ${req.params.sharelink}`);
 });
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
