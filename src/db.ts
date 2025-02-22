@@ -1,25 +1,25 @@
-import mongoose, { model, Schema } from "mongoose";
+import mongoose from "mongoose";
+import { Schema, model } from "mongoose";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const connectDB = async () => {
-    try {
-        await mongoose.connect("mongodb://127.0.0.1:27017/brainly", {
-            serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+    try{
+        await mongoose.connect(String(process.env.MONGO_URI),{
+            serverSelectionTimeoutMS: 5000,
         });
         console.log("MongoDB Connected Successfully");
-    } catch (error) {
-        console.error("MongoDB Connection Error:", error);
+    } catch(error){
+        console.error("MongoDB connection error:", error);
         process.exit(1);
     }
 };
 
-// Define the schema
 const UserSchema = new Schema({
-    username: { type: String, unique: true, required: true },
-    password: { type: String, required: true },
+    username: {type: String, unique: true, required: true},
+    password: {type: String, required: true},
 });
-
-// Create the model (fix: pass schema as second argument)
 export const UserModel = model("User", UserSchema);
 
-// Execute connection
 connectDB();
