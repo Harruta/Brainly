@@ -70,8 +70,15 @@ app.post("/api/v1/content", userMiddleware, async (req: Request, res: Response) 
     })
 });
 
-app.get("/api/v1/signup", (req: Request, res: Response) => {
-    res.send("Signup GET API placeholder");
+app.get("/api/v1/content", userMiddleware, async (req: Request, res: Response) => {
+    //@ts-ignore
+    const userId = req.userId;
+    const content = await ContentModel.find({
+        userId: userId
+    }).populate("userId", "username")
+    res.json({
+        content
+    })
 });
 
 app.delete("/api/v1/signup", (req: Request, res: Response) => {
