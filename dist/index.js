@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const db_1 = require("./db");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const middleware_1 = require("./middleware");
 const app = (0, express_1.default)();
 const PORT = 3000;
 const JWT_PASSWORD = "secret";
@@ -63,9 +64,20 @@ app.post("/api/v1/signin", (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 }));
 // Placeholder routes
-app.post("/api/v1/content", (req, res) => {
-    res.send("Content API placeholder");
-});
+app.post("/api/v1/content", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const link = req.body.link;
+    const type = req.body.type;
+    yield db_1.ContentModel.create({
+        link,
+        type,
+        //@ts-ignore
+        userId: req.userId,
+        tags: []
+    });
+    res.json({
+        message: "Content added"
+    });
+}));
 app.get("/api/v1/signup", (req, res) => {
     res.send("Signup GET API placeholder");
 });

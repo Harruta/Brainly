@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
-import { UserModel } from "./db";
+import { UserModel, ContentModel } from "./db";
 import jwt from "jsonwebtoken";
+import { userMiddleware } from "./middleware";
 
 const app = express();
 const PORT = 3000;
@@ -54,8 +55,19 @@ app.post("/api/v1/signin", async (req: Request, res: Response) => {
 });
 
 // Placeholder routes
-app.post("/api/v1/content", (req: Request, res: Response) => {
-    res.send("Content API placeholder");
+app.post("/api/v1/content", userMiddleware, async (req: Request, res: Response) => {
+    const link = req.body.link;
+    const type = req.body.type;
+    await ContentModel.create({
+        link,
+        type,
+        //@ts-ignore
+        userId: req.userId,
+        tags: []
+    })
+    res.json({
+        message: "Content added"
+    })
 });
 
 app.get("/api/v1/signup", (req: Request, res: Response) => {

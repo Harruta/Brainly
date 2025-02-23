@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserModel = void 0;
+exports.ContentModel = exports.UserModel = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const mongoose_2 = require("mongoose");
 const dotenv_1 = __importDefault(require("dotenv"));
@@ -33,5 +33,12 @@ const UserSchema = new mongoose_2.Schema({
     username: { type: String, unique: true, required: true },
     password: { type: String, required: true },
 });
+const ContentSchema = new mongoose_2.Schema({
+    title: String,
+    link: String,
+    tags: [{ type: mongoose_1.default.Types.ObjectId, ref: 'Tag' }],
+    userId: { type: mongoose_1.default.Types.ObjectId, ref: 'User', required: true }
+});
 exports.UserModel = (0, mongoose_2.model)("User", UserSchema);
+exports.ContentModel = (0, mongoose_2.model)("Content", ContentSchema);
 connectDB();

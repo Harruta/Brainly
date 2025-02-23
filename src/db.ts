@@ -27,5 +27,6 @@ const ContentSchema = new Schema({
     userId: {type: mongoose.Types.ObjectId, ref: 'User', required: true}
 })
 export const UserModel = model("User", UserSchema);
+export const ContentModel = model("Content", ContentSchema);
 
 connectDB();
