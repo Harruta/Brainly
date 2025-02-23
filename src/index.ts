@@ -81,8 +81,15 @@ app.get("/api/v1/content", userMiddleware, async (req: Request, res: Response) =
     })
 });
 
-app.delete("/api/v1/signup", (req: Request, res: Response) => {
-    res.send("Signup DELETE API placeholder");
+app.delete("/api/v1/content",userMiddleware, async (req: Request, res: Response) => {
+    const contentId = req.body.contentId;
+    await ContentModel.deleteMany({
+        //@ts-ignore
+        userId: req.userId
+    })
+    res.json({
+        message: "Content deleted"
+    })
 });
 
 app.post("/api/v1/brain/share", (req: Request, res: Response) => {
