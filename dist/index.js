@@ -16,6 +16,7 @@ const express_1 = __importDefault(require("express"));
 const db_1 = require("./db");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const middleware_1 = require("./middleware");
+const utils_1 = require("./utils");
 const app = (0, express_1.default)();
 const PORT = 3000;
 const JWT_PASSWORD = "secret";
@@ -88,15 +89,77 @@ app.get("/api/v1/content", middleware_1.userMiddleware, (req, res) => __awaiter(
         content
     });
 }));
-app.delete("/api/v1/signup", (req, res) => {
-    res.send("Signup DELETE API placeholder");
-});
-app.post("/api/v1/brain/share", (req, res) => {
-    res.send("Brain share API placeholder");
-});
-app.post("/api/v1/brain/:sharelink", (req, res) => {
-    res.send(`Brain share API for link: ${req.params.sharelink}`);
-});
+app.delete("/api/v1/content", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const contentId = req.body.contentId;
+    yield db_1.ContentModel.deleteMany({
+        //@ts-ignore
+        userId: req.userId
+    });
+    res.json({
+        message: "Content deleted"
+    });
+}));
+app.post("/api/v1/brain/share", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const share = req.body.share;
+    if (share) {
+        const existingLink = yield db_1.LinkModel.findOne({
+            //@ts-ignore
+            userId: req.userId
+        });
+        if (existingLink) {
+            res.json({
+                hash: existingLink.hash
+            });
+            return;
+        }
+        const hash = (0, utils_1.random)(10);
+        yield db_1.LinkModel.create({
+            //@ts-ignore
+            userId: req.userId,
+            hash: hash
+        });
+        res.json({
+            message: "/share/" + hash
+        });
+    }
+    else {
+        db_1.LinkModel.deleteOne({
+            //@ts-ignore
+            userId: req.userId
+        });
+    }
+    res.json({
+        message: "removed link"
+    });
+}));
+app.get("/api/v1/brain/:sharelink", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const hash = req.params.shareLink;
+    const link = yield db_1.LinkModel.findOne({
+        hash
+    });
+    if (!link) {
+        res.status(411).json({
+            message: "Invalid Link"
+        });
+        return;
+    }
+    const content = yield db_1.ContentModel.find({
+        userId: link.userId
+    });
+    const user = yield db_1.UserModel.findOne({
+        userId: link.userId
+    });
+    if (!user) {
+        res.status(411).json({
+            message: "User not found"
+        });
+        return;
+    }
+    res.json({
+        username: user.username,
+        content: content
+    });
+}));
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

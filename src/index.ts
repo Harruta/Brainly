@@ -1,7 +1,8 @@
 import express, { Request, Response } from "express";
-import { UserModel, ContentModel } from "./db";
+import { UserModel, ContentModel, LinkModel } from "./db";
 import jwt from "jsonwebtoken";
 import { userMiddleware } from "./middleware";
+import { random } from "./utils";
 
 const app = express();
 const PORT = 3000;
@@ -92,12 +93,68 @@ app.delete("/api/v1/content",userMiddleware, async (req: Request, res: Response)
     })
 });
 
-app.post("/api/v1/brain/share", (req: Request, res: Response) => {
-    res.send("Brain share API placeholder");
+app.post("/api/v1/brain/share", userMiddleware, async (req: Request, res: Response) => {
+    const share = req.body.share;
+    if(share){
+        const existingLink = await LinkModel.findOne({
+            //@ts-ignore
+            userId: req.userId
+        });
+        if(existingLink) {
+            res.json({
+                hash: existingLink.hash
+            })
+            return;
+        }
+
+        const hash = random(10);
+        await LinkModel.create({
+            //@ts-ignore
+            userId: req.userId,
+            hash: hash
+        })
+        res.json({
+            message: "/share/" + hash
+        })
+
+    } else {
+        LinkModel.deleteOne({
+            //@ts-ignore
+            userId: req.userId
+        });
+    }
+    res.json({
+        message: "removed link"
+    })
 });
 
-app.post("/api/v1/brain/:sharelink", (req: Request, res: Response) => {
-    res.send(`Brain share API for link: ${req.params.sharelink}`);
+app.get("/api/v1/brain/:sharelink", async (req: Request, res: Response) => {
+    const hash = req.params.shareLink;
+    const link = await LinkModel.findOne({
+        hash
+    });
+    if (!link){
+        res.status(411).json({
+            message: "Invalid Link"
+        })
+        return;
+    }
+    const content = await ContentModel.find({
+        userId: link.userId
+    })
+    const user = await UserModel.findOne({
+        userId: link.userId
+    })
+    if(!user){
+        res.status(411).json({
+            message: "User not found"
+        })
+        return;
+    }
+    res.json({
+        username: user.username,
+        content: content
+    })
 });
 
 app.listen(PORT, () => {
