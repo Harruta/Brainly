@@ -133,7 +133,7 @@ app.post("/api/v1/brain/share", middleware_1.userMiddleware, (req, res) => __awa
     });
 }));
 app.get("/api/v1/brain/:sharelink", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const hash = req.params.shareLink;
+    const hash = req.params.sharelink;
     const link = yield db_1.LinkModel.findOne({
         hash
     });
@@ -147,7 +147,7 @@ app.get("/api/v1/brain/:sharelink", (req, res) => __awaiter(void 0, void 0, void
         userId: link.userId
     });
     const user = yield db_1.UserModel.findOne({
-        userId: link.userId
+        _id: link.userId
     });
     if (!user) {
         res.status(411).json({

@@ -129,7 +129,7 @@ app.post("/api/v1/brain/share", userMiddleware, async (req: Request, res: Respon
 });
 
 app.get("/api/v1/brain/:sharelink", async (req: Request, res: Response) => {
-    const hash = req.params.shareLink;
+    const hash = req.params.sharelink;
     const link = await LinkModel.findOne({
         hash
     });
@@ -143,7 +143,7 @@ app.get("/api/v1/brain/:sharelink", async (req: Request, res: Response) => {
         userId: link.userId
     })
     const user = await UserModel.findOne({
-        userId: link.userId
+        _id: link.userId
     })
     if(!user){
         res.status(411).json({
