@@ -3,12 +3,14 @@ import { UserModel, ContentModel, LinkModel } from "./db";
 import jwt from "jsonwebtoken";
 import { userMiddleware } from "./middleware";
 import { random } from "./utils";
+import cors from "cors";
 
 const app = express();
 const PORT = 3000;
 const JWT_PASSWORD = "secret";
 
 app.use(express.json());
+app.use(cors());
 
 app.post("/api/v1/signup", async (req: Request, res: Response) => {
     try {
