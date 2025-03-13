@@ -68,9 +68,11 @@ app.post("/api/v1/signin", (req, res) => __awaiter(void 0, void 0, void 0, funct
 }));
 // Placeholder routes
 app.post("/api/v1/content", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const title = req.body.title;
     const link = req.body.link;
     const type = req.body.type;
     yield db_1.ContentModel.create({
+        title,
         link,
         type,
         //@ts-ignore
